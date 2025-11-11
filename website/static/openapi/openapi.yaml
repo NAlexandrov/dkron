@@ -664,7 +664,7 @@ components:
           description: Job expiration time
           readOnly: false
           format: date-time
-        started_at:
+        starts_at:
           type: string
           description: Job start time
           readOnly: true

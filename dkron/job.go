@@ -135,11 +135,11 @@ type Job struct {
 	// Delete the job after the first successful execution.
 	Ephemeral bool `json:"ephemeral"`
 
+	// The job will not be executed before this time.
+	StartsAt ntime.NullableTime `json:"starts_at"`
+
 	// The job will not be executed after this time.
 	ExpiresAt ntime.NullableTime `json:"expires_at"`
-
-	// The job will not be executed before this time.
-	StartedAt ntime.NullableTime `json:"started_at"`
 
 	logger *logrus.Entry
 }
@@ -182,9 +182,9 @@ func NewJobFromProto(in *proto.Job, logger *logrus.Entry) *Job {
 		t := in.GetExpiresAt().GetTime().AsTime()
 		job.ExpiresAt.Set(t)
 	}
-	if in.GetStartedAt().GetHasValue() {
-		t := in.GetStartedAt().GetTime().AsTime()
-		job.StartedAt.Set(t)
+	if in.GetStartsAt().GetHasValue() {
+		t := in.GetStartsAt().GetTime().AsTime()
+		job.StartsAt.Set(t)
 	}
 
 	procs := make(map[string]plugin.Config)
@@ -216,18 +216,18 @@ func (j *Job) ToProto() *proto.Job {
 
 	next := timestamppb.New(j.Next)
 
+	startsAt := &proto.Job_NullableTime{
+		HasValue: j.StartsAt.HasValue(),
+	}
+	if j.StartsAt.HasValue() {
+		startsAt.Time = timestamppb.New(j.StartsAt.Get())
+	}
+
 	expiresAt := &proto.Job_NullableTime{
 		HasValue: j.ExpiresAt.HasValue(),
 	}
 	if j.ExpiresAt.HasValue() {
 		expiresAt.Time = timestamppb.New(j.ExpiresAt.Get())
-	}
-
-	startedAt := &proto.Job_NullableTime{
-		HasValue: j.StartedAt.HasValue(),
-	}
-	if j.StartedAt.HasValue() {
-		startedAt.Time = timestamppb.New(j.StartedAt.Get())
 	}
 
 	processors := make(map[string]*proto.PluginConfig)
@@ -259,7 +259,7 @@ func (j *Job) ToProto() *proto.Job {
 		Next:           next,
 		Ephemeral:      j.Ephemeral,
 		ExpiresAt:      expiresAt,
-		StartedAt:      startedAt,
+		StartsAt:       startsAt,
 	}
 }
 
@@ -380,8 +380,8 @@ func (j *Job) scheduleHash() string {
 
 // GetNext returns the job's next schedule from now
 func (j *Job) GetNext() (time.Time, error) {
-	if j.StartedAt.HasValue() && time.Now().Before(j.StartedAt.Get()) {
-		return j.StartedAt.Get(), nil
+	if j.StartsAt.HasValue() && time.Now().Before(j.StartsAt.Get()) {
+		return j.StartsAt.Get(), nil
 	}
 
 	if j.Schedule != "" {
@@ -402,7 +402,7 @@ func (j *Job) isRunnable(logger *logrus.Entry) bool {
 		return false
 	}
 
-	if j.StartedAt.HasValue() && time.Now().Before(j.StartedAt.Get()) {
+	if j.StartsAt.HasValue() && time.Now().Before(j.StartsAt.Get()) {
 		logger.WithField("job", j.Name).
 			Debug("job: Skipping execution because job is not started")
 		return false

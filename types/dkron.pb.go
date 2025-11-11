@@ -51,7 +51,7 @@ type Job struct {
 	Processors     map[string]*PluginConfig `protobuf:"bytes,27,rep,name=processors,proto3" json:"processors,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	Ephemeral      bool                     `protobuf:"varint,28,opt,name=ephemeral,proto3" json:"ephemeral,omitempty"`
 	ExpiresAt      *Job_NullableTime        `protobuf:"bytes,29,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
-	StartedAt      *Job_NullableTime        `protobuf:"bytes,30,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
+	StartsAt       *Job_NullableTime        `protobuf:"bytes,30,opt,name=starts_at,json=startsAt,proto3" json:"starts_at,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -254,9 +254,9 @@ func (x *Job) GetExpiresAt() *Job_NullableTime {
 	return nil
 }
 
-func (x *Job) GetStartedAt() *Job_NullableTime {
+func (x *Job) GetStartsAt() *Job_NullableTime {
 	if x != nil {
-		return x.StartedAt
+		return x.StartsAt
 	}
 	return nil
 }
@@ -1369,7 +1369,7 @@ var File_dkron_proto protoreflect.FileDescriptor
 
 const file_dkron_proto_rawDesc = "" +
 	"\n" +
-	"\vdkron.proto\x12\x05types\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xc3\n" +
+	"\vdkron.proto\x12\x05types\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xc1\n" +
 	"\n" +
 	"\x03Job\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +
@@ -1403,9 +1403,8 @@ const file_dkron_proto_rawDesc = "" +
 	"processors\x12\x1c\n" +
 	"\tephemeral\x18\x1c \x01(\bR\tephemeral\x126\n" +
 	"\n" +
-	"expires_at\x18\x1d \x01(\v2\x17.types.Job.NullableTimeR\texpiresAt\x126\n" +
-	"\n" +
-	"started_at\x18\x1e \x01(\v2\x17.types.Job.NullableTimeR\tstartedAt\x1a7\n" +
+	"expires_at\x18\x1d \x01(\v2\x17.types.Job.NullableTimeR\texpiresAt\x124\n" +
+	"\tstarts_at\x18\x1e \x01(\v2\x17.types.Job.NullableTimeR\bstartsAt\x1a7\n" +
 	"\tTagsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
@@ -1563,7 +1562,7 @@ var file_dkron_proto_depIdxs = []int32{
 	28, // 5: types.Job.next:type_name -> google.protobuf.Timestamp
 	26, // 6: types.Job.processors:type_name -> types.Job.ProcessorsEntry
 	25, // 7: types.Job.expires_at:type_name -> types.Job.NullableTime
-	25, // 8: types.Job.started_at:type_name -> types.Job.NullableTime
+	25, // 8: types.Job.starts_at:type_name -> types.Job.NullableTime
 	27, // 9: types.PluginConfig.config:type_name -> types.PluginConfig.ConfigEntry
 	0,  // 10: types.SetJobRequest.job:type_name -> types.Job
 	0,  // 11: types.SetJobResponse.job:type_name -> types.Job
