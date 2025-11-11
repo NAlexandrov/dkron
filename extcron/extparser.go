@@ -21,7 +21,7 @@ func NewParser() cron.ScheduleParser {
 
 // Parse parses a cron schedule specification. It accepts the cron spec with
 // mandatory seconds parameter, descriptors and the custom descriptors
-// "@at <date>", "@manually" and "@minutely".
+// "@at <date>", "@manually", "@minutely" and "@after <date> <spec>"
 func (p ExtParser) Parse(spec string) (cron.Schedule, error) {
 	switch spec {
 	case "@manually":
@@ -38,6 +38,24 @@ func (p ExtParser) Parse(spec string) (cron.Schedule, error) {
 			return nil, fmt.Errorf("failed to parse date %s: %s", spec, err)
 		}
 		return At(date), nil
+	}
+
+	const after = "@after "
+	if strings.HasPrefix(spec, after) {
+		parts := strings.Fields(spec)
+		if len(parts) < 3 {
+			return nil, fmt.Errorf("failed to parse: %s", spec)
+		}
+		date, err := time.Parse(time.RFC3339, parts[1])
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse date %s: %s", parts[1], err)
+		}
+		spec := strings.Join(parts[2:], " ")
+		schedule, err := p.Parse(spec)
+		if err != nil {
+			return nil, err
+		}
+		return After(date, schedule), nil
 	}
 
 	// It's not a dkron specific spec: Let the regular cron schedule parser have it
