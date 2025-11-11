@@ -111,6 +111,7 @@ const JobShow = (props: any) => (
         <TextField source="status" />
         <TextField source="concurrency" />
         <BooleanField source="ephemeral" />
+        <DateField source="started_at" showTime />
         <DateField source="expires_at" showTime />
         <DateField source="next" sortable={false} showTime />
         <JsonField
